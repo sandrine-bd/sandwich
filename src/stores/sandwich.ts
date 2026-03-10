@@ -39,5 +39,12 @@ export const useSandwichStore = defineStore('sandwich', () => {
     }
   }
 
-  return { currentSandwich, savedSandwiches, generate }
+  // Action : sauvegarder le sandwich courant dans la liste
+  function save() {
+    if (currentSandwich.value) {
+      savedSandwiches.value.push({ ...currentSandwich.value })
+    }
+  }
+
+  return { currentSandwich, savedSandwiches, generate, save }
 })
