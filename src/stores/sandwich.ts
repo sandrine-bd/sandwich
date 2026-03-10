@@ -46,5 +46,10 @@ export const useSandwichStore = defineStore('sandwich', () => {
     }
   }
 
-  return { currentSandwich, savedSandwiches, generate, save }
+  // Action : supprimer un sandwich de la liste par son id
+  function remove(id: number) {
+    savedSandwiches.value = savedSandwiches.value.filter(s => s.id !== id)
+  }
+
+  return { currentSandwich, savedSandwiches, generate, save, remove }
 })
