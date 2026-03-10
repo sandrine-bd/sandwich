@@ -30,12 +30,13 @@ function pickRandom<T>(arr: T[]): T {
 // Clé localStorage et fonction de chargement initial
 const STORAGE_KEY = 'saved-sandwiches'
 
-function loadFromStorage(): Sandwich[] {
+function loadFromStorage<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
+    const raw = localStorage.getItem(key)
+    return raw ? JSON.parse(raw) : fallback
   } catch {
-    return []
+    return fallback
   }
 }
 
@@ -44,32 +45,18 @@ export const useSandwichStore = defineStore('sandwich', () => {
   // État réactif
   const currentSandwich = ref<Sandwich | null>(null)
 
-  // Initialisation depuis localStorage au lieu d'un tableau vide
-  const savedSandwiches = ref<Sandwich[]>(loadFromStorage())
+  const savedSandwiches = ref<Sandwich[]>(loadFromStorage('saved-sandwiches', []))
+
+  watch(
+  savedSandwiches,
+  (newVal) => {
+    localStorage.setItem('saved-sandwiches', JSON.stringify(newVal))
+  },
+  { deep: true }
+)
 
   // nextId calculé depuis les données persistées pour éviter les collisions d'id
   let nextId = savedSandwiches.value.reduce((max, s) => Math.max(max, s.id), 0) + 1
-  
-  // Synchroniser localStorage à chaque changement de la liste
-  watch(
-    savedSandwiches,
-    (newVal) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal))
-    },
-    { deep: true }  // car on surveille un tableau d'objets
-  )
-
-  // Action : générer un sandwich aléatoire
-  function generate() {
-    currentSandwich.value = {
-      id: nextId++,
-      name: generateName(),
-      bread: pickRandom(breads),
-      sauce: pickRandom(sauces),
-      cheese: pickRandom(cheeses),
-      filling: pickRandom(fillings),
-    }
-  }
 
   // Un sandwich est un doublon si les 4 ingrédients sont identiques
   const isDuplicate = computed(() => {
@@ -83,6 +70,20 @@ export const useSandwichStore = defineStore('sandwich', () => {
         )
   })
 
+  const totalSaved = computed(() => savedSandwiches.value.length)
+
+    // Action : générer un sandwich aléatoire
+  function generate() {
+    currentSandwich.value = {
+      id: nextId++,
+      name: generateName(),
+      bread: pickRandom(breads),
+      sauce: pickRandom(sauces),
+      cheese: pickRandom(cheeses),
+      filling: pickRandom(fillings),
+    }
+  }
+
   // Action : sauvegarder le sandwich courant dans la liste
   function save() {
     if (currentSandwich.value && !isDuplicate.value) {
@@ -94,8 +95,6 @@ export const useSandwichStore = defineStore('sandwich', () => {
   function remove(id: number) {
     savedSandwiches.value = savedSandwiches.value.filter(s => s.id !== id)
   }
-
-  const totalSaved = computed(() => savedSandwiches.value.length)
 
   return { currentSandwich, savedSandwiches, isDuplicate, totalSaved, generate, save, remove }
 })
