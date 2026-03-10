@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 
 const store = useSandwichStore()
 
-const { currentSandwich } = storeToRefs(store)
+const { currentSandwich, isDuplicate } = storeToRefs(store)
 </script>
 
 <template>
@@ -20,7 +20,12 @@ const { currentSandwich } = storeToRefs(store)
         <li>🧀 Fromage : {{ currentSandwich.cheese }}</li>
         <li>🥫 Sauce : {{ currentSandwich.sauce }}</li>
       </ul>
-      <button @click="store.save()">💾 Sauvegarder</button>
+      
+      <!-- ← Bouton désactivé + message si doublon -->
+      <button @click="store.save()" :disabled="isDuplicate">
+        💾 Sauvegarder
+      </button>
+      <p v-if="isDuplicate">⚠️ Ce sandwich est déjà dans ta liste !</p>
     </div>
   </div>
 </template>

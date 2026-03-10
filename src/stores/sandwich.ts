@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 // Sandwich : composé de 4 ingrédients types
 export interface Sandwich {
@@ -64,10 +64,22 @@ export const useSandwichStore = defineStore('sandwich', () => {
     }
   }
 
+  // Un sandwich est un doublon si les 4 ingrédients sont identiques
+  const isDuplicate = computed(() => {
+    if (!currentSandwich.value) return false
+    const c = currentSandwich.value
+    return savedSandwiches.value.some(
+        s => s.bread === c.bread &&
+            s.sauce === c.sauce &&
+            s.cheese === c.cheese &&
+            s.filling === c.filling
+        )
+  })
+
   // Action : sauvegarder le sandwich courant dans la liste
   function save() {
-    if (currentSandwich.value) {
-      savedSandwiches.value.push({ ...currentSandwich.value })
+    if (currentSandwich.value && !isDuplicate.value) {
+        savedSandwiches.value.push({ ...currentSandwich.value })
     }
   }
 
@@ -76,5 +88,5 @@ export const useSandwichStore = defineStore('sandwich', () => {
     savedSandwiches.value = savedSandwiches.value.filter(s => s.id !== id)
   }
 
-  return { currentSandwich, savedSandwiches, generate, save, remove }
+  return { currentSandwich, savedSandwiches, isDuplicate, generate, save, remove }
 })
