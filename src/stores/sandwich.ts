@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch, computed } from 'vue'
+import { useIngredientsStore } from './ingredients'
 
 // Sandwich : composé de 4 ingrédients types
 export interface Sandwich {
@@ -12,23 +13,17 @@ export interface Sandwich {
 }
 
 // Données initiales
-const breads = ['Baguette', 'Ciabatta', 'Pain de seigle', 'Wrap', 'Pain aux céréales']
-const sauces = ['Mayonnaise', 'Moutarde', 'Pesto', 'Sauce barbecue', 'Sauce aigre-douce']
-const cheeses = ['Cheddar', 'Mozzarella', 'Gouda', 'Emmental', 'Roquefort']
-const fillings = ['Jambon', 'Poulet', 'Saumon', 'Thon', 'Bacon']
 const adjectives = ['Rustique', 'Gourmand', 'Épicé', 'Classique', 'Sauvage', 'Délicat', 'Fumé', 'Croustillant']
 const nouns = ['Montagnard', 'Marin', 'Campagnard', 'Aventurier', 'Voyageur', 'Gourmet', 'Chasseur']
 
-function generateName(): string {
-  return `Le ${pickRandom(adjectives)} ${pickRandom(nouns)}`
-}
 // Prend un tableau et retourne un élément au hasard
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-// Clé localStorage et fonction de chargement initial
-const STORAGE_KEY = 'saved-sandwiches'
+function generateName(): string {
+  return `Le ${pickRandom(adjectives)} ${pickRandom(nouns)}`
+}
 
 function loadFromStorage<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback
@@ -44,17 +39,14 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 export const useSandwichStore = defineStore('sandwich', () => {
   // État réactif
   const currentSandwich = ref<Sandwich | null>(null)
-
   const savedSandwiches = ref<Sandwich[]>(loadFromStorage('saved-sandwiches', []))
 
   watch(
-  savedSandwiches,
-  (newVal) => {
-    localStorage.setItem('saved-sandwiches', JSON.stringify(newVal))
-  },
-  { deep: true }
-)
-
+    savedSandwiches,
+    (newVal) => { localStorage.setItem('saved-sandwiches', JSON.stringify(newVal)) },
+    { deep: true }
+  )
+  
   // nextId calculé depuis les données persistées pour éviter les collisions d'id
   let nextId = savedSandwiches.value.reduce((max, s) => Math.max(max, s.id), 0) + 1
 
@@ -71,16 +63,18 @@ export const useSandwichStore = defineStore('sandwich', () => {
   })
 
   const totalSaved = computed(() => savedSandwiches.value.length)
-
-    // Action : générer un sandwich aléatoire
+  
+  // Action : générer un sandwich aléatoire
   function generate() {
+    const { ingredients } = useIngredientsStore()
+
     currentSandwich.value = {
       id: nextId++,
       name: generateName(),
-      bread: pickRandom(breads),
-      sauce: pickRandom(sauces),
-      cheese: pickRandom(cheeses),
-      filling: pickRandom(fillings),
+      bread: pickRandom(ingredients.breads),
+      sauce: pickRandom(ingredients.sauces),
+      cheese: pickRandom(ingredients.cheeses),
+      filling: pickRandom(ingredients.fillings),
     }
   }
 
