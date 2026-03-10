@@ -41,8 +41,10 @@ const filteredSandwiches = computed(() => {
     <template v-else>
       <p v-if="filteredSandwiches.length === 0">Aucun résultat pour "{{ filterQuery }}".</p>
       <ul v-else>
+        <!-- Afficher le nom dans la liste -->
         <li v-for="sandwich in filteredSandwiches" :key="sandwich.id">
-          <span>{{ sandwich.bread }} · {{ sandwich.filling }} · {{ sandwich.cheese }} · {{ sandwich.sauce }}</span>
+          <strong>{{ sandwich.name }}</strong>
+          — {{ sandwich.bread }} · {{ sandwich.filling }} · {{ sandwich.cheese }} · {{ sandwich.sauce }}
           <button @click="store.remove(sandwich.id)">🗑️ Supprimer</button>
         </li>
       </ul>

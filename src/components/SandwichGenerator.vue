@@ -13,7 +13,7 @@ const { currentSandwich, isDuplicate } = storeToRefs(store)
 
     <!-- Affichage du résultat si un sandwich a été généré -->
     <div v-if="currentSandwich">
-      <h2>Votre sandwich :</h2>
+      <h2>{{ currentSandwich.name }}</h2>   <!-- ← nom affiché en titre -->
       <ul>
         <li>🍞 Pain : {{ currentSandwich.bread }}</li>
         <li>🥩 Garniture : {{ currentSandwich.filling }}</li>

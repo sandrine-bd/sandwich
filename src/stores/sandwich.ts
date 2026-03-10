@@ -4,6 +4,7 @@ import { ref, watch, computed } from 'vue'
 // Sandwich : composé de 4 ingrédients types
 export interface Sandwich {
   id: number
+  name: string
   bread: string
   sauce: string
   cheese: string
@@ -15,7 +16,12 @@ const breads = ['Baguette', 'Ciabatta', 'Pain de seigle', 'Wrap', 'Pain aux cér
 const sauces = ['Mayonnaise', 'Moutarde', 'Pesto', 'Sauce barbecue', 'Sauce aigre-douce']
 const cheeses = ['Cheddar', 'Mozzarella', 'Gouda', 'Emmental', 'Roquefort']
 const fillings = ['Jambon', 'Poulet', 'Saumon', 'Thon', 'Bacon']
+const adjectives = ['Rustique', 'Gourmand', 'Épicé', 'Classique', 'Sauvage', 'Délicat', 'Fumé', 'Croustillant']
+const nouns = ['Montagnard', 'Marin', 'Campagnard', 'Aventurier', 'Voyageur', 'Gourmet', 'Chasseur']
 
+function generateName(): string {
+  return `Le ${pickRandom(adjectives)} ${pickRandom(nouns)}`
+}
 // Prend un tableau et retourne un élément au hasard
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -57,6 +63,7 @@ export const useSandwichStore = defineStore('sandwich', () => {
   function generate() {
     currentSandwich.value = {
       id: nextId++,
+      name: generateName(),
       bread: pickRandom(breads),
       sauce: pickRandom(sauces),
       cheese: pickRandom(cheeses),
