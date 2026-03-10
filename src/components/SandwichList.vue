@@ -3,12 +3,13 @@ import { useSandwichStore } from '@/stores/sandwich'
 import { storeToRefs } from 'pinia'
 
 const store = useSandwichStore()
-const { savedSandwiches } = storeToRefs(store)
+const { savedSandwiches, totalSaved } = storeToRefs(store)
 </script>
 
 <template>
   <div>
-    <h2>Sandwichs sauvegardés ({{ savedSandwiches.length }})</h2>
+    <!-- ← Compteur dans le titre -->
+    <h2>Sandwichs sauvegardés ({{ totalSaved }})</h2>
 
     <!-- Afficher un message vide si aucun sandwich -->
     <p v-if="savedSandwiches.length === 0">Aucun sandwich sauvegardé.</p>

@@ -88,5 +88,7 @@ export const useSandwichStore = defineStore('sandwich', () => {
     savedSandwiches.value = savedSandwiches.value.filter(s => s.id !== id)
   }
 
-  return { currentSandwich, savedSandwiches, isDuplicate, generate, save, remove }
+  const totalSaved = computed(() => savedSandwiches.value.length)
+
+  return { currentSandwich, savedSandwiches, isDuplicate, totalSaved, generate, save, remove }
 })
