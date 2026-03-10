@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 // Sandwich : composé de 4 ingrédients types
 export interface Sandwich {
@@ -21,12 +21,37 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
+// Clé localStorage et fonction de chargement initial
+const STORAGE_KEY = 'saved-sandwiches'
+
+function loadFromStorage(): Sandwich[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
 // Store
 export const useSandwichStore = defineStore('sandwich', () => {
   // État réactif
   const currentSandwich = ref<Sandwich | null>(null)
-  const savedSandwiches = ref<Sandwich[]>([])
-  let nextId = 1
+
+  // Initialisation depuis localStorage au lieu d'un tableau vide
+  const savedSandwiches = ref<Sandwich[]>(loadFromStorage())
+
+  // nextId calculé depuis les données persistées pour éviter les collisions d'id
+  let nextId = savedSandwiches.value.reduce((max, s) => Math.max(max, s.id), 0) + 1
+  
+  // Synchroniser localStorage à chaque changement de la liste
+  watch(
+    savedSandwiches,
+    (newVal) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal))
+    },
+    { deep: true }  // car on surveille un tableau d'objets
+  )
 
   // Action : générer un sandwich aléatoire
   function generate() {
