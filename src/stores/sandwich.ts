@@ -28,5 +28,16 @@ export const useSandwichStore = defineStore('sandwich', () => {
   const savedSandwiches = ref<Sandwich[]>([])
   let nextId = 1
 
-  return { currentSandwich, savedSandwiches }
+  // Action : générer un sandwich aléatoire
+  function generate() {
+    currentSandwich.value = {
+      id: nextId++,
+      bread: pickRandom(breads),
+      sauce: pickRandom(sauces),
+      cheese: pickRandom(cheeses),
+      filling: pickRandom(fillings),
+    }
+  }
+
+  return { currentSandwich, savedSandwiches, generate }
 })
